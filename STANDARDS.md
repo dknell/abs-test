@@ -48,19 +48,27 @@ This is a Turborepo + pnpm workspace. Respect the boundaries:
 ```
 .
 ├── apps/
-│   └── web/                 # The Next.js application
-│       ├── app/             # App Router routes, layouts, pages
-│       ├── components/      # App-specific React components
-│       ├── lib/             # App-specific utilities, data access
-│       └── tests/           # E2E (Playwright) + integration tests
+│   └── web/                      # The Next.js application
+│       ├── app/                  # App Router routes, layouts, pages,
+│       │                         #   globals.css, and co-located *.test.tsx
+│       ├── components/           # App-specific components (add as needed)
+│       ├── lib/                  # App-specific utilities/data access (add as needed)
+│       ├── e2e/                  # Playwright end-to-end specs (*.spec.ts)
+│       ├── public/               # Static assets
+│       ├── postcss.config.mjs    # Tailwind v4 PostCSS plugin
+│       ├── vitest.config.ts      # Vitest (unit/component) config
+│       ├── vitest.setup.ts       # jest-dom matcher registration
+│       └── playwright.config.ts  # Playwright (E2E) config
 ├── packages/
-│   ├── ui/                  # Shared, reusable presentational components
-│   ├── config/              # Shared ESLint / Prettier / Tailwind config
-│   └── tsconfig/            # Shared TypeScript base configs
-├── .agent-pipeline/         # Pipeline config — PROTECTED, do not edit (§11)
-├── turbo.json               # Turborepo task graph
-├── pnpm-workspace.yaml      # Workspace definition
-└── STANDARDS.md             # This file
+│   ├── ui/                       # Shared React components            (@repo/ui)
+│   ├── eslint-config/            # Shared ESLint flat config (@repo/eslint-config)
+│   └── typescript-config/        # Shared tsconfig bases (@repo/typescript-config)
+├── .agent-pipeline/              # Pipeline config — PROTECTED, do not edit (§11)
+├── turbo.json                    # Turborepo task graph
+├── pnpm-workspace.yaml           # Workspace + allowed build scripts
+├── .nvmrc                        # Pinned Node version
+├── .prettierrc.json              # Prettier config
+└── STANDARDS.md                  # This file
 ```
 
 Rules:
@@ -68,6 +76,11 @@ Rules:
 - An app **MUST NOT** import from another app. Cross-cutting code goes in a package.
 - Reusable, generic, presentational components belong in `packages/ui`.
   App-specific components belong in `apps/web/components`.
+- Shared lint and TypeScript settings live in `packages/eslint-config` and
+  `packages/typescript-config`; extend those rather than redefining config per app.
+- **Styling/Tailwind** is configured CSS-first (Tailwind v4): the entry point is
+  `apps/web/app/globals.css` (`@import "tailwindcss"`) with `postcss.config.mjs`.
+  There is no `tailwind.config.js`.
 - Reference workspace packages by their package name (e.g. `@repo/ui`), never by
   relative path across package boundaries.
 
